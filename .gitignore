@@ -3,3 +3,12 @@
 out/
 src/
 test/
+stack.yaml
+package.yaml
+stack.yaml.lock
+LICENSE
+README.md
+ChangeLog.md
+Advent-of-Code.iml
+Setup.hs
+Advent-of-Code.cabal
