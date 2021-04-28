@@ -11,4 +11,11 @@ calculateFuelRequired :: Integer -> Integer
 calculateFuelRequired mass = div mass 3 - 2
 
 solvePartTwo :: IO Integer
-solvePartTwo = return 0
+solvePartTwo = do
+  masses <- readIntegers "app/Day1.txt"
+  return . sum $ map calculateTotalFuelRequired masses
+
+calculateTotalFuelRequired :: Integer -> Integer
+calculateTotalFuelRequired mass
+  | calculateFuelRequired mass < 0 = 0
+  | otherwise = calculateFuelRequired mass + calculateTotalFuelRequired (calculateFuelRequired mass)
