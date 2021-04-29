@@ -4,7 +4,7 @@ import InputReader
 
 solvePartOne :: IO Integer
 solvePartOne = do
-  masses <- readIntegers "app/Day1.txt"
+  masses <- readIntegers "app/input/Day1.txt"
   return . sum $ map calculateFuelRequired masses
    
 calculateFuelRequired :: Integer -> Integer
@@ -12,7 +12,7 @@ calculateFuelRequired mass = div mass 3 - 2
 
 solvePartTwo :: IO Integer
 solvePartTwo = do
-  masses <- readIntegers "app/Day1.txt"
+  masses <- readIntegers "app/input/Day1.txt"
   return . sum $ map calculateTotalFuelRequired masses
 
 calculateTotalFuelRequired :: Integer -> Integer
