@@ -39,4 +39,28 @@ replace index replacement list = do
   first ++ [replacement] ++ tail second
 
 solvePartTwo :: IO Integer
-solvePartTwo = return 0
+solvePartTwo = result 0
+
+result :: Integer -> IO Integer
+result nounverb = do
+  tmp <- calculate nounverb
+  if tmp == 19690720
+    then return nounverb
+  else result (nounverb + 1)
+  
+calculate :: Integer -> IO Integer
+calculate nounverb = do
+  opcodes <- reset nounverb
+  let resultOpcodes = operate 0 opcodes
+  return $ head resultOpcodes
+  
+reset :: Integer -> IO [Integer]
+reset nounverb = do
+  input <- readStrings "app/input/Day2.txt"
+  let opcodes = map strtoi $ splitOn "," $ head input
+  let (noun, verb) = decompose nounverb
+  return $ replace 2 verb $ replace 1 noun opcodes
+  
+decompose :: Integer -> (Integer, Integer)
+decompose n = (n `div` 100, n `mod` 100)
+  
