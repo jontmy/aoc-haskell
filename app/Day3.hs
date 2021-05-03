@@ -1,7 +1,6 @@
 module Day3 where
   
 import InputReader
-import Debug.Trace
 import Data.List.Split
   
 type Coordinates = (Int, Int)
@@ -101,5 +100,53 @@ solvePartOne = do
   let pointIntersections = concat $ filter (\lst -> length lst /= 0) $ map pointsOfIntersection lineIntersections
   return $ fromIntegral $ foldr1 min $ map (\p -> manhattanDistance p) pointIntersections
 
+-- Takes an integer and multiplies it by itself.
+square :: Int -> Int
+square n = n * n
+
+-- Takes 2 points and finds the length of the line segment between them using the Pythagorean theorem.
+euclideanDistance:: Coordinates -> Coordinates -> Int
+euclideanDistance (x1, y1) (x2, y2) = (round . sqrt . fromIntegral) (dx + dy)
+  where
+    dx = square $ x2 - x1
+    dy = square $ y2 - y1
+    
+-- Takes a point P and a line AB, determining whether the point lies on the line by checking whether AB = AP + PB.
+liesOnLine :: Coordinates -> Line -> Bool
+liesOnLine p (a, b) = ab == ap + pb
+  where
+    ab = euclideanDistance a b
+    ap = euclideanDistance a p
+    pb = euclideanDistance p b
+
+-- Takes a point and a list of lines representing a wire, finding the shortest distance from the origin to the point via the wire.
+travelDistance :: Coordinates -> [Line] -> Int
+travelDistance point wire = wireDistance + remainderDistance
+  where
+    path = takeWhile (\line -> not $ point `liesOnLine` line) wire -- the lines traversed from the origin to the line with the intersection point
+    wireDistance = sum (map (\(p1, p2) -> euclideanDistance p1 p2) path) -- the total length of the lines in the path
+    remainderDistance = euclideanDistance (snd $ last path) point -- the distance from the end of the path to the intersection point
+
+-- Take a point and 2 lists of wires representing 2 wires, finding the total distance from the origin to the point via both wires.
+totalTravelDistance :: Coordinates -> [Line] -> [Line] -> Int
+totalTravelDistance point wire1 wire2 = dist1 + dist2
+  where
+    dist1 = travelDistance point wire1
+    dist2 = travelDistance point wire2
+
+minimumTravelDistance :: [Coordinates] -> [Line] -> [Line] -> Int
+minimumTravelDistance points wire1 wire2 = foldr1 min $ distances
+  where
+    distances = map (\point -> totalTravelDistance point wire1 wire2) points
+
 solvePartTwo :: IO Integer
-solvePartTwo = return 0
+solvePartTwo = do
+  wires <- readStrings "app/input/Day3.txt"
+  let 
+    result = minimumTravelDistance points wire1 wire2
+      where
+        wire1 = parseMoves $ head wires
+        wire2 = parseMoves $ (wires !! 1)
+        lineIntersections = zip wire1 (map (\path -> intersections path wire2) wire1)
+        points = concat $ filter (\lst -> length lst /= 0) $ map pointsOfIntersection lineIntersections
+  return $ fromIntegral result
