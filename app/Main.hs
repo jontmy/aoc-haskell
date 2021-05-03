@@ -3,13 +3,15 @@ module Main where
 import Day1
 import Day2
 import Day3
+import Day4
 
 main :: IO ()
 main = do
   putStrLn $ "\n" ++ "Advent of Code 2019"
   -- dayStr 1 Day1.solvePartOne Day1.solvePartTwo >>= putStrLn
   -- dayStr 2 Day2.solvePartOne Day2.solvePartTwo >>= putStrLn
-  dayStr 3 Day3.solvePartOne Day3.solvePartTwo >>= putStrLn
+  --  dayStr 3 Day3.solvePartOne Day3.solvePartTwo >>= putStrLn
+  dayStr 4 Day4.solvePartOne Day4.solvePartTwo >>= putStrLn
     
 dayStr :: Integer -> IO Integer -> IO Integer -> IO String
 dayStr dayNum partOneResultIO partTwoResultIO = do
