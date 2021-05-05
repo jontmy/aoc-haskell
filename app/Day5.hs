@@ -2,7 +2,6 @@ module Day5 where
 
 import Data.List.Split
 import InputReader
-import Debug.Trace
 
 import Data.Vector hiding ((++))
 
@@ -14,7 +13,7 @@ parseInput str = fromList lst
   where lst = Prelude.map read (splitOn "," str)
 
 getOpcode :: Position -> Vector Int -> Opcode
-getOpcode pos vec = trace ("  opcode: " ++ show opcode) opcode
+getOpcode pos vec = opcode
   where
     ins = Prelude.reverse (show $ (vec ! pos))
     opcode = read $ Prelude.reverse (Prelude.take 2 ins)
@@ -41,7 +40,7 @@ setValue pos vec val = vec // [(vec ! pos, val)]
 
 operate :: Position -> Vector Int -> Int -> Vector Int
 operate pos vec input =
-  case (trace ("position: " ++ show pos ++ " (" ++ show (vec ! pos) ++ ")" ++ " @ " ++ show vec) $ getOpcode pos vec) of
+  case (getOpcode pos vec) of
     1  -> operate (pos + 4) (oppAdd pos vec) input
     2  -> operate (pos + 4) (opMultiply pos vec) input
     3  -> operate (pos + 2) (opStore pos vec input) input
@@ -77,8 +76,8 @@ opLessThan pos vec = setValue (pos + 3) vec intBool
 opEquals :: Position -> Vector Int -> Vector Int
 opEquals pos vec = setValue (pos + 3) vec intBool
  where
-   first = traceShow (getValue pos 1 vec) (getValue pos 1 vec)
-   second = traceShow (getValue pos 2 vec) (getValue pos 2 vec)
+   first = getValue pos 1 vec
+   second = getValue pos 2 vec
    intBool = if first == second then 1 else 0
 
 opStore :: Position -> Vector Int -> Int -> Vector Int
