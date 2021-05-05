@@ -4,23 +4,37 @@ import Day1
 import Day2
 import Day3
 import Day4
+import Day5
+
+import Data.Time
+import Data.Fixed
+
+type Day = Int
+type Part = Int
 
 main :: IO ()
 main = do
   putStrLn $ "\n" ++ "Advent of Code 2019"
-  -- dayStr 1 Day1.solvePartOne Day1.solvePartTwo >>= putStrLn
-  -- dayStr 2 Day2.solvePartOne Day2.solvePartTwo >>= putStrLn
-  --  dayStr 3 Day3.solvePartOne Day3.solvePartTwo >>= putStrLn
-  dayStr 4 Day4.solvePartOne Day4.solvePartTwo >>= putStrLn
-    
-dayStr :: Integer -> IO Integer -> IO Integer -> IO String
-dayStr dayNum partOneResultIO partTwoResultIO = do
-  partOneResult <- partOneResultIO
-  partTwoResult <- partTwoResultIO
-  return $ "\n" ++ "Day " ++ show dayNum ++ ":" ++ "\n" ++ partStr 1 partOneResult ++ "\n" ++ partStr 2 partTwoResult
-  
-partStr :: Integer -> Integer -> String
-partStr partNum partResult = do
-  if partResult == 0
-    then "part " ++ show partNum ++ " - unsolved"
-  else "part " ++ show partNum ++ " - " ++ show partResult
+  benchmarkDay 1 Day1.solvePartOne Day1.solvePartTwo
+  benchmarkDay 2 Day2.solvePartOne Day2.solvePartTwo
+  benchmarkDay 3 Day3.solvePartOne Day3.solvePartTwo
+  benchmarkDay 4 Day4.solvePartOne Day4.solvePartTwo
+  benchmarkDay 5 Day5.solvePartOne Day5.solvePartTwo
+
+benchmarkDay :: Main.Day -> IO Integer -> IO Integer -> IO ()
+benchmarkDay day solver1 solver2 =
+  do
+    putStrLn ""
+    putStrLn $ "Day " ++ show day ++ ":"
+    benchmarkPart 1 solver1
+    benchmarkPart 2 solver2
+
+benchmarkPart :: Part -> IO Integer -> IO ()
+benchmarkPart part solver =
+  do
+    putStr $ "part " ++ show part ++ " - "
+    tic    <- getCurrentTime
+    result <- solver
+    toc    <- getCurrentTime
+    putStr $ show result
+    putStrLn $ " (" ++ showFixed True (nominalDiffTimeToSeconds (diffUTCTime toc tic) * 1000) ++ " ms)"
