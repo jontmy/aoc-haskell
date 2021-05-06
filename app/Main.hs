@@ -21,7 +21,7 @@ main = do
   benchmarkDay 4 Day4.solvePartOne Day4.solvePartTwo
   benchmarkDay 5 Day5.solvePartOne Day5.solvePartTwo
 
-benchmarkDay :: Main.Day -> IO Integer -> IO Integer -> IO ()
+benchmarkDay :: Show a => Main.Day -> IO a -> IO a -> IO ()
 benchmarkDay day solver1 solver2 =
   do
     putStrLn ""
@@ -29,12 +29,12 @@ benchmarkDay day solver1 solver2 =
     benchmarkPart 1 solver1
     benchmarkPart 2 solver2
 
-benchmarkPart :: Part -> IO Integer -> IO ()
+benchmarkPart :: Show a => Part -> IO a -> IO ()
 benchmarkPart part solver =
   do
     putStr $ "part " ++ show part ++ " - "
-    tic    <- getCurrentTime
-    result <- solver
-    toc    <- getCurrentTime
-    putStr $ show result
+    tic <- getCurrentTime
+    res <- solver
+    toc <- getCurrentTime
+    putStr $ show res
     putStrLn $ " (" ++ showFixed True (nominalDiffTimeToSeconds (diffUTCTime toc tic) * 1000) ++ " ms)"
