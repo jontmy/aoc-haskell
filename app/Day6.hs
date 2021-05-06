@@ -1,17 +1,18 @@
+{-# LANGUAGE TupleSections #-}
+
 module Day6 where
 
 import InputReader(readStrings)
 import Data.List.Split(splitOn)
 
 import Data.Map as Map
-import Data.Set as Set
 
 type OrbitalParent = String
 type OrbitalChild = String
 
 type OrbitalPair = (OrbitalParent, OrbitalChild)
-type OrbitalMap = Map OrbitalParent [OrbitalChild]
-type InvertedOrbitalMap = Map OrbitalChild [OrbitalParent]
+type OrbitalMap = Map OrbitalParent [OrbitalChild]         -- maps parents -> child(ren)
+type InvertedOrbitalMap = Map OrbitalChild [OrbitalParent] -- maps child -> parent(s)
 
 -- Take an orbital string in the form of <parent>)<child> and returns an OrbitalPair tuple.
 parseOrbit :: String -> OrbitalPair
@@ -47,7 +48,7 @@ solvePartOne =
     
 -- Inverts a Data.Map, handling the case where a value appears more than once in the "right hand side" assignments.
 -- https://stackoverflow.com/questions/21538903/how-can-i-elegantly-invert-a-maps-keys-and-values#21541158
-invert :: (Ord k, Ord v) => Map k [v] -> Map v [k]
+invert :: Ord v => Map k [v] -> Map v [k]
 invert m = Map.fromListWith (++) pairs
     where pairs = [(v, [k]) | (k, vs) <- Map.toList m, v <- vs]
 
@@ -55,33 +56,27 @@ invert m = Map.fromListWith (++) pairs
 parentsOf :: OrbitalChild -> InvertedOrbitalMap -> [OrbitalParent]
 parentsOf = findWithDefault []
 
--- Finds all the ancestors of an orbital body within an orbital map.
-ancestorsOf :: [OrbitalChild] -> InvertedOrbitalMap -> Set OrbitalParent
-ancestorsOf children invMap = Set.union (Set.fromList parents) (ancestorsOf parents invMap)
+-- Finds all the ancestors of an orbital body within an orbital map, mapping the degrees of vertical separation between
+-- the descendant and the ancestor to the ancestor.
+ancestorsOf :: [OrbitalChild] -> Int -> InvertedOrbitalMap -> Map OrbitalParent Int
+ancestorsOf children distance invMap = result
   where
     parents = concatMap (`parentsOf` invMap) children
-
--- Finds all the common ancestors of 2 orbital bodies within an orbital map.
-commonAncestorsOf :: OrbitalChild -> OrbitalChild -> InvertedOrbitalMap -> Set OrbitalParent
-commonAncestorsOf c1 c2 invMap = Set.intersection a1 a2
+    includeDistance = Prelude.map (, distance)
+    result = if Prelude.null children then Map.fromList $ includeDistance parents else Map.union (Map.fromList $ includeDistance parents) (ancestorsOf parents (distance + 1) invMap)
+    
+-- Finds all the common ancestors of 2 orbital bodies within an orbital map, mapping the minimum number
+-- of orbital transfers needed to get from the first orbital body to the other, to the common ancestor
+commonAncestorsOf :: OrbitalChild -> OrbitalChild -> InvertedOrbitalMap -> Map OrbitalParent Int
+commonAncestorsOf c1 c2 invMap = Map.intersectionWith (+) a1 a2
   where
-    a1 = ancestorsOf [c1] invMap
-    a2 = ancestorsOf [c2] invMap
+    a1 = ancestorsOf [c1] 0 invMap
+    a2 = ancestorsOf [c2] 0 invMap
 
--- Finds the minimum number of orbital transfers needed to get from one orbital body to another.
--- Assumes that the first orbital body orbits the second orbital body, directly or indirectly.
-orbitalTransfers :: OrbitalChild -> OrbitalParent -> InvertedOrbitalMap -> Int
-orbitalTransfers child parent invMap = 0
-
--- Finds the shortest path of orbital transfers between 2 orbital bodies by breadth-first search.
--- Throws an error if there is no path of orbital transfers between the 2 bodies.
-
-
-
+-- Finds the minimum number of orbital transfers required to move from the object YOU are orbiting to the object SAN is orbiting.
 solvePartTwo :: IO Int
 solvePartTwo =
   do
     input <- readStrings "app/input/Day6.txt"
     let invOrbitalMap = invert $ parseOrbits input -- child -> parent
---    mapM_ print $ toList invOrbitalMap
-    return 0
+    return $ minimum (commonAncestorsOf "YOU" "SAN" invOrbitalMap)
