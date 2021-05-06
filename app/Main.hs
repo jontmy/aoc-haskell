@@ -5,6 +5,7 @@ import Day2
 import Day3
 import Day4
 import Day5
+import Day6
 
 import Data.Time
 import Data.Fixed
@@ -20,6 +21,7 @@ main = do
   benchmarkDay 3 Day3.solvePartOne Day3.solvePartTwo
   benchmarkDay 4 Day4.solvePartOne Day4.solvePartTwo
   benchmarkDay 5 Day5.solvePartOne Day5.solvePartTwo
+  benchmarkDay 6 Day6.solvePartOne Day6.solvePartTwo
 
 benchmarkDay :: Show a => Main.Day -> IO a -> IO a -> IO ()
 benchmarkDay day solver1 solver2 =
